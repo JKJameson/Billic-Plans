@@ -207,10 +207,10 @@ class Plans {
 			$title = 'New Plan';
 			$billic->set_title($title);
 			echo '<h1>' . $title . '</h1>';
-			if (array_key_exists('Lp', $billic->lic)) {
+			$license_data = $billic->get_license_data();
+			if ($license_data['desc']!='Unlimited') {
 				$lic_count = $db->q('SELECT COUNT(*) FROM `plans`');
-				$lic_count = $lic_count[0]['COUNT(*)'];
-				if ($lic_count >= $billic->lic['Lp']) {
+				if ($lic_count[0]['COUNT(*)'] >= $license_data['plans']) {
 					err('Unable to create a new plan because you have reached your limit. Please upgrade your Billic License.');
 				}
 			}
@@ -267,10 +267,10 @@ class Plans {
 			$title = 'Clone Plan ' . safe($name);
 			$billic->set_title($title);
 			echo '<h1>' . $title . '</h1>';
-			if (array_key_exists('Lp', $billic->lic)) {
+			$license_data = $billic->get_license_data();
+			if ($license_data['desc']!='Unlimited') {
 				$lic_count = $db->q('SELECT COUNT(*) FROM `plans`');
-				$lic_count = $lic_count[0]['COUNT(*)'];
-				if ($lic_count >= $billic->lic['Lp']) {
+				if ($lic_count[0]['COUNT(*)'] >= $license_data['plans']) {
 					err('Unable to create a new plan because you have reached your limit. Please upgrade your Billic License.');
 				}
 			}
@@ -315,10 +315,10 @@ class Plans {
 			$title = 'Import Plan';
 			$billic->set_title($title);
 			echo '<h1>' . $title . '</h1>';
-			if (array_key_exists('Lp', $billic->lic)) {
+			$license_data = $billic->get_license_data();
+			if ($license_data['desc']!='Unlimited') {
 				$lic_count = $db->q('SELECT COUNT(*) FROM `plans`');
-				$lic_count = $lic_count[0]['COUNT(*)'];
-				if ($lic_count >= $billic->lic['Lp']) {
+				if ($lic_count[0]['COUNT(*)'] >= $license_data['plans']) {
 					err('Unable to create a new plan because you have reached your limit. Please upgrade your Billic License.');
 				}
 			}
@@ -607,20 +607,6 @@ class Plans {
 		$billic->show_errors();
 		$billic->set_title('Admin/Plans');
 		echo '<h1><i class="icon-barcode"></i> Plans</h1>';
-		if (array_key_exists('Lp', $billic->lic)) {
-			$lic_count = $db->q('SELECT COUNT(*) FROM `plans`');
-			$lic_count = $lic_count[0]['COUNT(*)'];
-			$lic_percent = ceil((100 / $billic->lic['Lp']) * $lic_count);
-			echo '<div class="alert alert-';
-			if ($lic_percent >= 80) {
-				echo 'danger';
-			} else if ($lic_percent >= 60) {
-				echo 'warning';
-			} else {
-				echo 'info';
-			}
-			echo '" role="alert">Your Billic license limits you to ' . $billic->lic['Lp'] . ' plans. You are currently using ' . $lic_count . ' at ' . $lic_percent . '% capacity.</div>';
-		}
 		echo '<a href="New/" class="btn btn-success"><i class="icon-plus"></i> New Plan</a> <a href="Import/" class="btn btn-success"><i class="icon-exchange"></i> Import Plan</a>';
 		echo '<div style="float: right;padding-right: 40px;">Showing ' . $pagination['start_text'] . ' to ' . $pagination['end_text'] . ' of ' . $total . ' Plans</div>';
 		echo '<table class="table table-striped"><tr><th>Name</th><th>Show</th><th>Module</th><th>Order Form</th><th style="width:20%">Actions</th></tr>';
