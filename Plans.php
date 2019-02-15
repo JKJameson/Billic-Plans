@@ -65,7 +65,7 @@ class Plans {
 				}
 				$options = json_encode($_POST['options']);
 				if (empty($billic->errors)) {
-					$db->q('UPDATE `plans` SET `name` = ?, `orderform` = ?, `price` = ?, `billingcycles` = ?, `billingcycledefault` = ?, `prorata_day` = ?, `options` = ?, `tax_group` = ?, `email_template_activated` = ?, `email_template_suspended` = ?, `email_template_terminated` = ?, `email_template_unsuspended` = ? WHERE `id` = ?', $_POST['name'], $_POST['orderform'], $_POST['price'], $billingcycles, $_POST['billingcycledefault'], $prorata_day, $options, $_POST['tax_group'], $_POST['email_template_activated'], $_POST['email_template_suspended'], $_POST['email_template_terminated'], $_POST['email_template_unsuspended'], $plan['id']);
+					$db->q('UPDATE `plans` SET `name` = ?, `orderform` = ?, `price` = ?, `setup` = ?, `billingcycles` = ?, `billingcycledefault` = ?, `prorata_day` = ?, `options` = ?, `tax_group` = ?, `email_template_activated` = ?, `email_template_suspended` = ?, `email_template_terminated` = ?, `email_template_unsuspended` = ? WHERE `id` = ?', $_POST['name'], $_POST['orderform'], $_POST['price'], $_POST['setup'], $billingcycles, $_POST['billingcycledefault'], $prorata_day, $options, $_POST['tax_group'], $_POST['email_template_activated'], $_POST['email_template_suspended'], $_POST['email_template_terminated'], $_POST['email_template_unsuspended'], $plan['id']);
 					$billic->redirect('/Admin/Plans/Name/' . urlencode($_POST['name']) . '/');
 				}
 			}
@@ -99,14 +99,20 @@ class Plans {
 				echo '</select>';
 			}
 			echo '</td></tr>';
-			if (isset($_POST['price'])) {
-				$plan['price'] = $_POST['price'];
-			}
+			if (isset($_POST['price'])) $plan['price'] = $_POST['price'];
 			echo '<tr><td width="125">Price</td><td>';
 			if (method_exists($billic->modules[$orderform['module']], 'orderprice')) {
 				echo 'The module decides the price inside the function ' . $orderform['module'] . '->orderprice($plan)';
 			} else {
 				echo '<div class="input-group" style="width: 200px"><span class="input-group-addon">' . get_config('billic_currency_prefix') . '</span><input type="text" class="form-control" name="price" value="' . safe($plan['price']) . '"><span class="input-group-addon">' . get_config('billic_currency_suffix') . '</span></div>';
+			}
+			echo '</td></tr>';
+			if (isset($_POST['setup'])) $plan['setup'] = $_POST['setup'];
+			echo '<tr><td>Setup</td><td>';
+			if (method_exists($billic->modules[$orderform['module']], 'orderprice')) {
+				echo 'The module decides the setup inside the function ' . $orderform['module'] . '->orderprice($plan)';
+			} else {
+				echo '<div class="input-group" style="width: 200px"><span class="input-group-addon">' . get_config('billic_currency_prefix') . '</span><input type="text" class="form-control" name="setup" value="' . safe($plan['setup']) . '"><span class="input-group-addon">' . get_config('billic_currency_suffix') . '</span></div>';
 			}
 			echo '</td></tr>';
 			echo '<tr><td valign="top">Tax Group</td><td><select class="form-control" name="tax_group">';
@@ -443,7 +449,8 @@ class Plans {
 							$plan_id = $db->insert('plans', array(
 								'name' => $new_name,
 								'orderform' => $orderform_id,
-								'price' => ($plan['price'] / 100) * (100 + $_POST['markup']) ,
+								'price' => ($plan['price'] / 100) * (100 + $_POST['markup']),
+								'setup' => ($plan['setup'] / 100) * (100 + $_POST['markup']),
 								'billingcycles' => $billingcycles_list,
 								'billingcycledefault' => $plan['billingcycledefault'],
 								'prorata_day' => $plan['prorata_day'],
@@ -457,7 +464,7 @@ class Plans {
 										'name' => $item['name'],
 										'type' => $item['type'],
 										'parent' => $orderform_id,
-										'price' => ($item['price'] / 100) * (100 + $_POST['markup']) ,
+										'price' => ($item['price'] / 100) * (100 + $_POST['markup']),
 										'order' => $item['order'],
 										'min' => $item['min'],
 										'max' => $item['max'],
@@ -473,6 +480,7 @@ class Plans {
 												'type' => $option['type'],
 												'order' => $option['order'],
 												'price' => $option['price'],
+												'setup' => $option['setup'],
 												'module_var' => $option['name'],
 											));
 										}
@@ -545,10 +553,10 @@ class Plans {
 						echo '</td><td valign="top">';
 						if (is_array($plan['items'])) {
 							foreach ($plan['items'] as $item) {
-								echo $item['name'] . ' (' . $item['type'] . ') - ' . $item['price'] . '<br>';
+								echo $item['name'] . ' (' . $item['type'] . ') - ' . $item['price'] . ' ('.$item['setup'].' setup)<br>';
 								if (is_array($item['options'])) {
 									foreach ($item['options'] as $option) {
-										echo '&nbsp;&nbsp;&nbsp;&nbsp;&raquo; ' . $option['name'] . ' - ' . $option['price'] . '<br>';
+										echo '&nbsp;&nbsp;&nbsp;&nbsp;&raquo; ' . $option['name'] . ' - ' . $option['price'] . ' - ('.$item['setup'].' setup)<br>';
 									}
 								}
 							}
