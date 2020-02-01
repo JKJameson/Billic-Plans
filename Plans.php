@@ -242,14 +242,10 @@ class Plans {
 					// if there are any tax groups, get the first one available and assign it by default
 					$tax_group = $db->q('SELECT * FROM `tax_groups` ORDER BY `name` ASC LIMIT 1');
 					$tax_group = $tax_group[0];
-					$activated_id = $db->q('SELECT `id` FROM `emailtemplates` WHERE `default` = ?', 'Service Activated');
-					$activated_id = $activated_id['id'];
-					$suspended_id = $db->q('SELECT `id` FROM `emailtemplates` WHERE `default` = ?', 'Service Suspended');
-					$suspended_id = $suspended_id['id'];
-					$unsuspended_id = $db->q('SELECT `id` FROM `emailtemplates` WHERE `default` = ?', 'Service Unsuspended');
-					$unsuspended_id = $unsuspended_id['id'];
-					$terminated_id = $db->q('SELECT `id` FROM `emailtemplates` WHERE `default` = ?', 'Service Terminated');
-					$terminated_id = $terminated_id['id'];
+					$activated_id = $db->q('SELECT `id` FROM `emailtemplates` WHERE `default` = ?', 'Service Activated')[0]['id'];
+					$suspended_id = $db->q('SELECT `id` FROM `emailtemplates` WHERE `default` = ?', 'Service Suspended')[0]['id'];
+					$unsuspended_id = $db->q('SELECT `id` FROM `emailtemplates` WHERE `default` = ?', 'Service Unsuspended')[0]['id'];
+					$terminated_id = $db->q('SELECT `id` FROM `emailtemplates` WHERE `default` = ?', 'Service Terminated')[0]['id'];
 					$db->insert('plans', array(
 						'name' => $_POST['name'],
 						'tax_group' => $tax_group['name'],
